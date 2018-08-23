@@ -25,6 +25,7 @@ import (
 	cid "gx/ipfs/QmcZfnkapfECQGcLZaf9B79NRg7cRa9EnZh4LSbkCzwNvY/go-cid"
 	files "gx/ipfs/QmceUdzxkimdYsgtX733uNgzf1DLHyBKN6ehGSp85ayppM/go-ipfs-cmdkit/files"
 	ipld "gx/ipfs/Qme5bWv7wtjUNGsK2BNGVUFPKiuxWrsqrtvYwCLRw8YFES/go-ipld-format"
+	"strings"
 )
 
 var log = logging.Logger("coreunix")
@@ -82,6 +83,7 @@ type Adder struct {
 	RawLeaves  bool
 	Silent     bool
 	Wrap       bool
+	WpName	   string
 	NoCopy     bool
 	Chunker    string
 	root       ipld.Node
@@ -234,7 +236,6 @@ func (adder *Adder) Finalize() (ipld.Node, error) {
 			return nil, err
 		}
 	}
-
 	err = adder.outputDirs(name, root)
 	if err != nil {
 		return nil, err
@@ -477,6 +478,9 @@ func (adder *Adder) addFile(file files.File) error {
 		return err
 	}
 
+	if(!strings.EqualFold(adder.WpName,"")&&adder.Wrap){
+		return adder.addNode(dagnode,adder.WpName)
+	}
 	// patch it into the root
 	return adder.addNode(dagnode, file.FileName())
 }
